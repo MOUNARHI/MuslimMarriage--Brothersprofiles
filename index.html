@@ -1,0 +1,1573 @@
+import { useState, useMemo } from "react";
+
+// Types
+interface Profile {
+  id: string;
+  timestamp: string;
+  gender: string;
+  age: number | string;
+  height: string;
+  location: string;
+  nationality: string;
+  ethnicity: string;
+  nativeLanguage: string;
+  languages: string[];
+  maritalStatus: string;
+  hasChildren: boolean;
+  childrenDetails: string;
+  willingToRelocate: string;
+  traits: string[];
+  immigrationStatus: string;
+  timeInCanada: string;
+  marriageTimeline: string;
+}
+
+// Parse the data
+const rawProfiles: Profile[] = [
+  {
+    id: "MMID10002026100555",
+    timestamp: "5/6/2026 19:56:44",
+    gender: "Male",
+    age: 20,
+    height: "1.78m",
+    location: "Montreal, Canada",
+    nationality: "Canadian, French, Algerian",
+    ethnicity: "Other",
+    nativeLanguage: "French",
+    languages: ["Arabic", "English", "French", "Spanish"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Can change neighborhood but not city",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic", "Respectful"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Since birth",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100562",
+    timestamp: "5/24/2026 1:05:51",
+    gender: "Male",
+    age: 20,
+    height: "179cm",
+    location: "Montreal, QC",
+    nationality: "Tunisian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Strict Religiously", "Generous", "Helpful", "Determined", "Empathetic"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "2 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100525",
+    timestamp: "4/4/2026 0:34:59",
+    gender: "Male",
+    age: 21,
+    height: "5'10\"",
+    location: "Saint-Eustache, Canada",
+    nationality: "Canadian",
+    ethnicity: "Black / African Descent",
+    nativeLanguage: "French",
+    languages: ["English"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Kind", "Honest", "Generous", "Helpful", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "19 years",
+    marriageTimeline: "2+ years"
+  },
+  {
+    id: "MMID10002026100567",
+    timestamp: "4/7/2026 17:11:32",
+    gender: "Male",
+    age: 21,
+    height: "1.65m",
+    location: "Montreal, Canada",
+    nationality: "Canadian",
+    ethnicity: "White / European Descent",
+    nativeLanguage: "Russian",
+    languages: ["English", "French", "Russian"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Good communicator", "Generous", "Helpful", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "5.5 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100583",
+    timestamp: "6/17/2026 19:33:34",
+    gender: "Male",
+    age: 21,
+    height: "1.82m",
+    location: "Montreal, Canada",
+    nationality: "Moroccan, Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Kind", "Honest", "Family oriented", "Good communicator", "Generous", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "12+ years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100520",
+    timestamp: "4/2/2026 23:08:23",
+    gender: "Male",
+    age: 22,
+    height: "178cm",
+    location: "Algeria",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "French",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Good communicator", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Visitor",
+    timeInCanada: "4 months",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100531",
+    timestamp: "4/17/2026 22:09:21",
+    gender: "Male",
+    age: 22,
+    height: "183cm",
+    location: "Montreal",
+    nationality: "Egyptian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Strict Religiously", "Good communicator", "Generous", "Determined", "Charismatic", "Funny"],
+    immigrationStatus: "Study Permit",
+    timeInCanada: "5 years",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100563",
+    timestamp: "5/24/2026 10:02:18",
+    gender: "Male",
+    age: 23,
+    height: "1.93m",
+    location: "Quebec",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "English/Arabic",
+    languages: ["Arabic", "English"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: true,
+    childrenDetails: "Age 26",
+    willingToRelocate: "Yes",
+    traits: ["Kind", "Honest", "Patient", "Good communicator", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Study Permit",
+    timeInCanada: "3 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100507",
+    timestamp: "4/2/2026 21:30:50",
+    gender: "Male",
+    age: 24,
+    height: "6'0.5\"",
+    location: "Montreal, Quebec",
+    nationality: "Indian",
+    ethnicity: "South Asian",
+    nativeLanguage: "Tamil",
+    languages: ["English", "Tamil"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Patient", "Family oriented", "Good communicator", "Generous", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Study Permit",
+    timeInCanada: "2 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100535",
+    timestamp: "4/23/2026 18:28:56",
+    gender: "Male",
+    age: 24,
+    height: "1.85m",
+    location: "Laval, QC, Canada",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Berber",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Study Permit",
+    timeInCanada: "2 years 8 months",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100578",
+    timestamp: "6/9/2026 0:13:29",
+    gender: "Male",
+    age: 24,
+    height: "182cm",
+    location: "Montreal, Quebec",
+    nationality: "Egyptian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Patient", "Educated", "Good communicator", "Generous", "Helpful", "Funny"],
+    immigrationStatus: "Study Permit",
+    timeInCanada: "1.5 months",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100534",
+    timestamp: "4/21/2026 21:32:45",
+    gender: "Male",
+    age: 25,
+    height: "5'8\"",
+    location: "Montreal, Canada",
+    nationality: "Canadian",
+    ethnicity: "North American",
+    nativeLanguage: "French",
+    languages: ["English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Whole life",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100580",
+    timestamp: "6/14/2026 17:38:49",
+    gender: "Male",
+    age: 25,
+    height: "5'10\"",
+    location: "Montreal, QC, Canada",
+    nationality: "Egyptian",
+    ethnicity: "Middle Eastern / West Asian",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English"],
+    maritalStatus: "Never Married but Previously Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "2.5 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100566a",
+    timestamp: "5/29/2026 20:11:06",
+    gender: "Male",
+    age: 26,
+    height: "172cm",
+    location: "Laval, Quebec, Canada",
+    nationality: "Canadian, Moroccan",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Educated", "Family oriented", "Determined"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Since birth",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100521",
+    timestamp: "4/2/2026 23:29:06",
+    gender: "Male",
+    age: 27,
+    height: "1.76m",
+    location: "Montreal",
+    nationality: "French",
+    ethnicity: "North African",
+    nativeLanguage: "French",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined"],
+    immigrationStatus: "Study Permit",
+    timeInCanada: "4.5 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100533",
+    timestamp: "4/21/2026 16:36:05",
+    gender: "Male",
+    age: 27,
+    height: "1.77m",
+    location: "Longueuil",
+    nationality: "Ivorian",
+    ethnicity: "North African",
+    nativeLanguage: "French",
+    languages: ["French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "Since Aug 2025",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100565a",
+    timestamp: "5/29/2026 12:14:02",
+    gender: "Male",
+    age: 27,
+    height: "170cm",
+    location: "Montreal",
+    nationality: "Moroccan/Canadian",
+    ethnicity: "Middle Eastern / West Asian",
+    nativeLanguage: "Berber/Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Generous", "Helpful"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "13 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100537",
+    timestamp: "4/27/2026 9:16:36",
+    gender: "Male",
+    age: 28,
+    height: "171cm",
+    location: "Montreal, Canada",
+    nationality: "Indian",
+    ethnicity: "South Asian",
+    nativeLanguage: "Urdu",
+    languages: ["English", "French", "Urdu", "Hindi"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Funny", "Empathetic"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "6 years",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100570",
+    timestamp: "6/4/2026 12:12:56",
+    gender: "Male",
+    age: 28,
+    height: "1.88m",
+    location: "Montreal",
+    nationality: "Canadian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic Darija",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "4 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100503",
+    timestamp: "3/27/2026 0:19:30",
+    gender: "Male",
+    age: 29,
+    height: "175cm",
+    location: "Montreal",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Kind", "Honest", "Strict Religiously", "Educated", "Helpful", "Funny"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "1 year 7 months",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100511",
+    timestamp: "5/11/2026 23:19:44",
+    gender: "Male",
+    age: 29,
+    height: "5'5\"",
+    location: "Montreal, QC",
+    nationality: "Bangladeshi",
+    ethnicity: "South Asian",
+    nativeLanguage: "Bengali",
+    languages: ["English", "Bengali", "Hindi"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Generous", "Helpful", "Funny"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "2.5 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100538",
+    timestamp: "4/26/2026 21:53:27",
+    gender: "Male",
+    age: 29,
+    height: "184cm",
+    location: "Montreal",
+    nationality: "Moroccan",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "3 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100539",
+    timestamp: "4/26/2026 22:28:53",
+    gender: "Male",
+    age: 29,
+    height: "168cm",
+    location: "Montreal, Canada",
+    nationality: "Canadian",
+    ethnicity: "East Asian",
+    nativeLanguage: "Cantonese",
+    languages: ["English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Educated", "Helpful"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "29 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100549",
+    timestamp: "4/30/2026 8:36:27",
+    gender: "Male",
+    age: 29,
+    height: "5'7\"",
+    location: "Windsor, Ontario",
+    nationality: "Indian",
+    ethnicity: "South Asian",
+    nativeLanguage: "Urdu-Hindi",
+    languages: ["English", "Gujarati", "Hindi"],
+    maritalStatus: "Never Married but Previously Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Family oriented", "Funny", "Empathetic"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "1.5 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100551",
+    timestamp: "5/2/2026 0:52:25",
+    gender: "Male",
+    age: 30,
+    height: "190cm",
+    location: "Montreal",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "4 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100553",
+    timestamp: "5/3/2026 21:28:36",
+    gender: "Male",
+    age: 30,
+    height: "183cm",
+    location: "Montreal, Canada",
+    nationality: "Canadian (Lebanese origin)",
+    ethnicity: "Middle Eastern / West Asian",
+    nativeLanguage: "Arabic",
+    languages: ["English", "French"],
+    maritalStatus: "Never Married but Previously Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Since birth",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100546",
+    timestamp: "4/30/2026 2:49:36",
+    gender: "Male",
+    age: 31,
+    height: "5'5\"",
+    location: "Montreal, Canada",
+    nationality: "Pakistani",
+    ethnicity: "South Asian",
+    nativeLanguage: "Urdu, Punjabi",
+    languages: ["English"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Moving to Ottawa",
+    traits: ["Religious", "Honest", "Educated", "Family oriented", "Good communicator", "Helpful", "Determined", "Funny"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "Since 2020",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100526",
+    timestamp: "4/4/2026 9:55:02",
+    gender: "Male",
+    age: 32,
+    height: "170cm",
+    location: "Montreal",
+    nationality: "Chadian",
+    ethnicity: "Black / African Descent",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "French", "Chadian Fulani"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "2 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100554",
+    timestamp: "5/6/2026 9:40:47",
+    gender: "Male",
+    age: 32,
+    height: "1.8m",
+    location: "Montreal, Canada",
+    nationality: "Ivorian",
+    ethnicity: "Black / African Descent",
+    nativeLanguage: "French",
+    languages: ["Bambara"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Good communicator", "Generous", "Helpful", "Empathetic"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "2 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100582",
+    timestamp: "6/17/2026 5:56:01",
+    gender: "Male",
+    age: 32,
+    height: "5'4\"",
+    location: "Moncton, NB, Canada",
+    nationality: "Canadian",
+    ethnicity: "White / European Descent",
+    nativeLanguage: "English",
+    languages: ["Persian", "Spanish"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Honest", "Family oriented", "Generous", "Helpful", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Since birth",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100536",
+    timestamp: "4/13/2026 15:29:16",
+    gender: "Male",
+    age: 33,
+    height: "1.7m",
+    location: "Montreal, Canada",
+    nationality: "Libyan",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["English", "French"],
+    maritalStatus: "Divorced",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Accepted Refugee",
+    timeInCanada: "30 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100568",
+    timestamp: "6/2/2026 18:38:02",
+    gender: "Male",
+    age: 33,
+    height: "1.75m",
+    location: "Montreal, Canada",
+    nationality: "Moroccan",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Helpful", "Funny", "Empathetic"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "2 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100524",
+    timestamp: "4/3/2026 18:17:00",
+    gender: "Male",
+    age: 35,
+    height: "170cm",
+    location: "Laval, Quebec",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Family oriented", "Good communicator", "Generous", "Determined", "Empathetic"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "3 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100532",
+    timestamp: "4/24/2026 21:41:12",
+    gender: "Male",
+    age: 35,
+    height: "5'9\"",
+    location: "Montreal, Canada",
+    nationality: "Algerian and Italian",
+    ethnicity: "Mixed",
+    nativeLanguage: "French",
+    languages: ["English"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Patient", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Funny"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Always",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100557",
+    timestamp: "5/8/2026 15:29:48",
+    gender: "Male",
+    age: 35,
+    height: "1.8m",
+    location: "Montreal, Canada",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "2 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100561",
+    timestamp: "5/21/2026 19:49:20",
+    gender: "Male",
+    age: 35,
+    height: "1.72m",
+    location: "Canada",
+    nationality: "Chadian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic/French",
+    languages: ["Arabic", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "2 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100564",
+    timestamp: "5/24/2026 12:54:05",
+    gender: "Male",
+    age: 35,
+    height: "1.9m",
+    location: "Montreal, Quebec",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Educated", "Good communicator", "Generous"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "~2 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100510",
+    timestamp: "4/3/2026 21:41:25",
+    gender: "Male",
+    age: 38,
+    height: "175cm",
+    location: "Saint-Lambert, QC, Canada",
+    nationality: "Tunisian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Funny", "Empathetic"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "1 year",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100540",
+    timestamp: "4/27/2026 1:07:09",
+    gender: "Male",
+    age: 38,
+    height: "5'9\"",
+    location: "Montreal, Quebec, Canada",
+    nationality: "Afghan",
+    ethnicity: "Middle Eastern / West Asian",
+    nativeLanguage: "Pashto",
+    languages: ["English", "French", "Russian"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "30+ years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100577",
+    timestamp: "6/7/2026 13:15:04",
+    gender: "Male",
+    age: 40,
+    height: "1.7m",
+    location: "Montreal",
+    nationality: "Moroccan",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French", "Russian"],
+    maritalStatus: "Married (seeking second wife)",
+    hasChildren: true,
+    childrenDetails: "5 years old",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Family oriented", "Generous"],
+    immigrationStatus: "Permanent Resident",
+    timeInCanada: "5 years",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100556",
+    timestamp: "5/9/2026 22:18:38",
+    gender: "Male",
+    age: 41,
+    height: "161cm",
+    location: "Sorel-Tracy, Quebec",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["French"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "4 years old",
+    willingToRelocate: "It depends",
+    traits: ["Kind", "Honest", "Patient", "Educated", "Family oriented", "Generous", "Helpful", "Empathetic"],
+    immigrationStatus: "Work Permit",
+    timeInCanada: "3 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100509",
+    timestamp: "4/3/2026 2:35:33",
+    gender: "Male",
+    age: 42,
+    height: "5'6\"",
+    location: "Mississauga, Canada",
+    nationality: "N/A",
+    ethnicity: "Other",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "Has own children",
+    willingToRelocate: "Yes",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "25 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100566b",
+    timestamp: "5/23/2026 7:02:43",
+    gender: "Male",
+    age: 44,
+    height: "1.67m",
+    location: "Windsor, Ontario, Canada",
+    nationality: "Syrian",
+    ethnicity: "Middle Eastern / West Asian",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "Daughter, 7 years old",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Determined", "Charismatic", "Funny"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "2.5 years",
+    marriageTimeline: "1-2 months"
+  },
+  {
+    id: "MMID10002026100559",
+    timestamp: "5/16/2026 14:41:43",
+    gender: "Male",
+    age: 47,
+    height: "1.8m",
+    location: "St-Remi, Quebec",
+    nationality: "Algerian/Canadian",
+    ethnicity: "North American",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "French"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "Daughter, 9 years old",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "16 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100585",
+    timestamp: "6/18/2026 21:14:11",
+    gender: "Male",
+    age: 48,
+    height: "175cm",
+    location: "Quebec, Canada",
+    nationality: "Quebecer",
+    ethnicity: "Indigenous / First Nations",
+    nativeLanguage: "French",
+    languages: ["French"],
+    maritalStatus: "Never Married & Never Engaged",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Kind", "Honest", "Patient", "Helpful", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "Always",
+    marriageTimeline: "12-24 months"
+  },
+  {
+    id: "MMID10002026100565b",
+    timestamp: "5/25/2026 15:13:11",
+    gender: "Male",
+    age: 49,
+    height: "1.65m",
+    location: "Laval, QC, Canada",
+    nationality: "Canadian",
+    ethnicity: "Southeast Asian",
+    nativeLanguage: "Vietnamese",
+    languages: ["English", "French"],
+    maritalStatus: "Separated (divorce pending ~6 months)",
+    hasChildren: true,
+    childrenDetails: "Ages 9, 11, 13",
+    willingToRelocate: "No",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "42 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100576",
+    timestamp: "6/6/2026 12:31:11",
+    gender: "Male",
+    age: 50,
+    height: "181cm",
+    location: "Montreal, Canada",
+    nationality: "Moroccan/Canadian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English", "French"],
+    maritalStatus: "Divorced",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "25 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100586",
+    timestamp: "6/18/2026 22:14:48",
+    gender: "Male",
+    age: 51,
+    height: "1.8m",
+    location: "Montreal West",
+    nationality: "Canadian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "French", "Kabyle"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "1 child",
+    willingToRelocate: "No",
+    traits: ["Kind", "Patient", "Generous", "Helpful", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "20 years",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100552",
+    timestamp: "5/2/2026 7:49:45",
+    gender: "Male",
+    age: 54,
+    height: "179cm",
+    location: "Montreal, Canada",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Berber",
+    languages: ["Arabic", "French"],
+    maritalStatus: "Marriage annulled",
+    hasChildren: false,
+    childrenDetails: "",
+    willingToRelocate: "It depends",
+    traits: ["Religious", "Kind", "Honest", "Strict Religiously", "Patient", "Educated", "Family oriented", "Good communicator", "Generous", "Helpful", "Determined", "Charismatic", "Funny", "Empathetic"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "16 years",
+    marriageTimeline: "6-12 months"
+  },
+  {
+    id: "MMID10002026100584",
+    timestamp: "6/18/2026 17:34:58",
+    gender: "Male",
+    age: 41,
+    height: "168cm",
+    location: "Montreal",
+    nationality: "Algerian",
+    ethnicity: "North African",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "French"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "2 children, 10 years old",
+    willingToRelocate: "Yes",
+    traits: ["Kind", "Honest", "Good communicator", "Generous", "Helpful", "Empathetic"],
+    immigrationStatus: "Refugee Applicant",
+    timeInCanada: "1 year",
+    marriageTimeline: "3-6 months"
+  },
+  {
+    id: "MMID10002026100558",
+    timestamp: "5/9/2026 21:55:46",
+    gender: "Male",
+    age: 45,
+    height: "5'7\"",
+    location: "Toronto, Canada",
+    nationality: "Canadian",
+    ethnicity: "Other",
+    nativeLanguage: "Arabic",
+    languages: ["Arabic", "English"],
+    maritalStatus: "Divorced",
+    hasChildren: true,
+    childrenDetails: "14 years old",
+    willingToRelocate: "It depends",
+    traits: ["Kind", "Honest", "Strict Religiously", "Patient", "Good communicator", "Funny"],
+    immigrationStatus: "Canadian Citizen",
+    timeInCanada: "25 years",
+    marriageTimeline: "6-12 months"
+  }
+];
+
+// Extract unique values for filters
+const uniqueLocations = [...new Set(rawProfiles.map(p => {
+  const loc = p.location.toLowerCase();
+  if (loc.includes("montreal") || loc.includes("montréal")) return "Montreal";
+  if (loc.includes("laval")) return "Laval";
+  if (loc.includes("quebec") || loc.includes("québec")) return "Quebec";
+  if (loc.includes("toronto")) return "Toronto";
+  if (loc.includes("windsor")) return "Windsor";
+  if (loc.includes("mississauga")) return "Mississauga";
+  if (loc.includes("moncton")) return "Moncton";
+  if (loc.includes("ottawa")) return "Ottawa";
+  return "Other";
+}))].sort();
+
+const uniqueStatuses = [...new Set(rawProfiles.map(p => p.immigrationStatus))].sort();
+const uniqueNationalities = [...new Set(rawProfiles.flatMap(p => p.nationality.split(/[,/]/).map(n => n.trim())))].filter(n => n && n !== "N/A").sort();
+const uniqueEthnicities = [...new Set(rawProfiles.map(p => p.ethnicity))].sort();
+
+// Helper to normalize location
+const normalizeLocation = (loc: string): string => {
+  const lower = loc.toLowerCase();
+  if (lower.includes("montreal") || lower.includes("montréal")) return "Montreal";
+  if (lower.includes("laval")) return "Laval";
+  if (lower.includes("quebec") || lower.includes("québec")) return "Quebec";
+  if (lower.includes("toronto")) return "Toronto";
+  if (lower.includes("windsor")) return "Windsor";
+  if (lower.includes("mississauga")) return "Mississauga";
+  if (lower.includes("moncton")) return "Moncton";
+  if (lower.includes("ottawa")) return "Ottawa";
+  return "Other";
+};
+
+// Parse time in Canada to numeric years
+const parseTimeInCanada = (time: string): number => {
+  const lower = time.toLowerCase();
+  if (lower.includes("birth") || lower.includes("always") || lower.includes("whole life") || lower.includes("toujours")) return 100;
+  const years = lower.match(/(\d+)\s*(years?|ans?|yrs?)/i);
+  const months = lower.match(/(\d+)\s*(months?|mois)/i);
+  let total = 0;
+  if (years) total += parseInt(years[1]);
+  if (months) total += parseInt(months[1]) / 12;
+  if (total === 0) {
+    const num = lower.match(/(\d+)/);
+    if (num) total = parseInt(num[1]);
+  }
+  return total;
+};
+
+// Icon components
+const UserIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
+
+const LocationIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
+const HeartIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const GlobeIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const IdIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+  </svg>
+);
+
+const FilterIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+  </svg>
+);
+
+const ChildIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
+);
+
+// Multi-select component
+const MultiSelect = ({ 
+  label, 
+  options, 
+  selected, 
+  onChange,
+  placeholder = "Select..."
+}: { 
+  label: string; 
+  options: string[]; 
+  selected: string[]; 
+  onChange: (val: string[]) => void;
+  placeholder?: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-3 py-2 text-left bg-white border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+      >
+        <span className={selected.length ? "text-slate-900" : "text-slate-400"}>
+          {selected.length ? `${selected.length} selected` : placeholder}
+        </span>
+      </button>
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+          {options.map(option => (
+            <label key={option} className="flex items-center px-3 py-2 hover:bg-slate-50 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selected.includes(option)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChange([...selected, option]);
+                  } else {
+                    onChange(selected.filter(s => s !== option));
+                  }
+                }}
+                className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+              />
+              <span className="ml-2 text-sm text-slate-700">{option}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Profile card component
+const ProfileCard = ({ profile }: { profile: Profile }) => {
+  const [expanded, setExpanded] = useState(false);
+  
+  const getStatusColor = (status: string) => {
+    if (status.includes("Citizen")) return "bg-emerald-100 text-emerald-800";
+    if (status.includes("Permanent")) return "bg-blue-100 text-blue-800";
+    if (status.includes("Work")) return "bg-purple-100 text-purple-800";
+    if (status.includes("Study")) return "bg-amber-100 text-amber-800";
+    if (status.includes("Refugee")) return "bg-orange-100 text-orange-800";
+    return "bg-slate-100 text-slate-800";
+  };
+  
+  const getTimelineColor = (timeline: string) => {
+    if (timeline.includes("1-2 months")) return "bg-red-100 text-red-800";
+    if (timeline.includes("3-6 months")) return "bg-orange-100 text-orange-800";
+    if (timeline.includes("6-12 months")) return "bg-amber-100 text-amber-800";
+    return "bg-emerald-100 text-emerald-800";
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow border border-slate-200 overflow-hidden">
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-xl">
+              {typeof profile.age === 'number' ? profile.age : '?'}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <IdIcon />
+                <span className="font-mono text-xs">{profile.id}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(profile.immigrationStatus)}`}>
+                  {profile.immigrationStatus}
+                </span>
+              </div>
+            </div>
+          </div>
+          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getTimelineColor(profile.marriageTimeline)}`}>
+            <ClockIcon />
+            <span className="ml-1">{profile.marriageTimeline}</span>
+          </span>
+        </div>
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+          <div className="flex items-center gap-2 text-slate-600">
+            <LocationIcon />
+            <span>{profile.location}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-600">
+            <GlobeIcon />
+            <span>{profile.nationality}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-600">
+            <UserIcon />
+            <span>{profile.height}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-600">
+            <HeartIcon />
+            <span className="truncate">{profile.maritalStatus.split(/[&,]/)[0].trim()}</span>
+          </div>
+        </div>
+
+        {/* Time in Canada */}
+        <div className="flex items-center gap-2 text-sm text-slate-600 mb-3">
+          <span className="font-medium">In Canada:</span>
+          <span className="px-2 py-0.5 bg-slate-100 rounded text-slate-700">{profile.timeInCanada}</span>
+        </div>
+
+        {/* Children indicator */}
+        {profile.hasChildren && (
+          <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg mb-3">
+            <ChildIcon />
+            <span>{profile.childrenDetails || "Has children"}</span>
+          </div>
+        )}
+
+        {/* Expand/Collapse */}
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+        >
+          {expanded ? "Show less ▲" : "Show more ▼"}
+        </button>
+
+        {expanded && (
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            {/* Languages */}
+            <div className="mb-3">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Languages</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {profile.languages.map((lang, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-700">
+                    {lang}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Ethnicity */}
+            <div className="mb-3">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Ethnicity</span>
+              <p className="text-sm text-slate-700 mt-1">{profile.ethnicity}</p>
+            </div>
+
+            {/* Relocation */}
+            <div className="mb-3">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Willing to Relocate</span>
+              <p className="text-sm text-slate-700 mt-1">{profile.willingToRelocate}</p>
+            </div>
+
+            {/* Traits */}
+            <div>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Traits</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {profile.traits.slice(0, 8).map((trait, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs">
+                    {trait}
+                  </span>
+                ))}
+                {profile.traits.length > 8 && (
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs">
+                    +{profile.traits.length - 8} more
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Main App
+export default function BachelorProfiles() {
+  const [locations, setLocations] = useState<string[]>([]);
+  const [statuses, setStatuses] = useState<string[]>([]);
+  const [nationalities, setNationalities] = useState<string[]>([]);
+  const [ethnicities, setEthnicities] = useState<string[]>([]);
+  const [ageMin, setAgeMin] = useState("");
+  const [ageMax, setAgeMax] = useState("");
+  const [filterMode, setFilterMode] = useState<"AND" | "OR">("AND");
+  const [sortBy, setSortBy] = useState<"age" | "timeInCanada" | "id">("age");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [showFilters, setShowFilters] = useState(true);
+
+  const filteredProfiles = useMemo(() => {
+    let result = [...rawProfiles];
+
+    // Apply filters
+    const hasFilters = locations.length || statuses.length || nationalities.length || ethnicities.length || ageMin || ageMax;
+    
+    if (hasFilters) {
+      result = result.filter(profile => {
+        const checks: boolean[] = [];
+        
+        if (locations.length) {
+          checks.push(locations.includes(normalizeLocation(profile.location)));
+        }
+        if (statuses.length) {
+          checks.push(statuses.some(s => profile.immigrationStatus.includes(s)));
+        }
+        if (nationalities.length) {
+          checks.push(nationalities.some(n => profile.nationality.toLowerCase().includes(n.toLowerCase())));
+        }
+        if (ethnicities.length) {
+          checks.push(ethnicities.includes(profile.ethnicity));
+        }
+        if (ageMin) {
+          const age = typeof profile.age === 'number' ? profile.age : parseInt(profile.age as string) || 0;
+          checks.push(age >= parseInt(ageMin));
+        }
+        if (ageMax) {
+          const age = typeof profile.age === 'number' ? profile.age : parseInt(profile.age as string) || 0;
+          checks.push(age <= parseInt(ageMax));
+        }
+
+        if (filterMode === "AND") {
+          return checks.every(Boolean);
+        } else {
+          return checks.length === 0 || checks.some(Boolean);
+        }
+      });
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      let comparison = 0;
+      if (sortBy === "age") {
+        const ageA = typeof a.age === 'number' ? a.age : parseInt(a.age as string) || 0;
+        const ageB = typeof b.age === 'number' ? b.age : parseInt(b.age as string) || 0;
+        comparison = ageA - ageB;
+      } else if (sortBy === "timeInCanada") {
+        comparison = parseTimeInCanada(a.timeInCanada) - parseTimeInCanada(b.timeInCanada);
+      } else {
+        comparison = a.id.localeCompare(b.id);
+      }
+      return sortDir === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [locations, statuses, nationalities, ethnicities, ageMin, ageMax, filterMode, sortBy, sortDir]);
+
+  const clearFilters = () => {
+    setLocations([]);
+    setStatuses([]);
+    setNationalities([]);
+    setEthnicities([]);
+    setAgeMin("");
+    setAgeMax("");
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-800">Muslim Marriage Match</h1>
+              <p className="text-slate-600 mt-1">Browse {filteredProfiles.length} of {rawProfiles.length} profiles</p>
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              <FilterIcon />
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Filters */}
+        {showFilters && (
+          <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-800">Filters</h2>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">Filter mode:</span>
+                  <button
+                    onClick={() => setFilterMode(filterMode === "AND" ? "OR" : "AND")}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      filterMode === "AND" 
+                        ? "bg-emerald-100 text-emerald-800" 
+                        : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    {filterMode}
+                  </button>
+                </div>
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-slate-500 hover:text-slate-700"
+                >
+                  Clear all
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <MultiSelect
+                label="Location"
+                options={uniqueLocations}
+                selected={locations}
+                onChange={setLocations}
+                placeholder="Any location"
+              />
+              <MultiSelect
+                label="Immigration Status"
+                options={uniqueStatuses}
+                selected={statuses}
+                onChange={setStatuses}
+                placeholder="Any status"
+              />
+              <MultiSelect
+                label="Nationality"
+                options={uniqueNationalities}
+                selected={nationalities}
+                onChange={setNationalities}
+                placeholder="Any nationality"
+              />
+              <MultiSelect
+                label="Ethnicity"
+                options={uniqueEthnicities}
+                selected={ethnicities}
+                onChange={setEthnicities}
+                placeholder="Any ethnicity"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Age Min</label>
+                <input
+                  type="number"
+                  value={ageMin}
+                  onChange={(e) => setAgeMin(e.target.value)}
+                  placeholder="18"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Age Max</label>
+                <input
+                  type="number"
+                  value={ageMax}
+                  onChange={(e) => setAgeMax(e.target.value)}
+                  placeholder="60"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Sort By</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "age" | "timeInCanada" | "id")}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="age">Age</option>
+                  <option value="timeInCanada">Time in Canada</option>
+                  <option value="id">Profile ID</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Order</label>
+                <select
+                  value={sortDir}
+                  onChange={(e) => setSortDir(e.target.value as "asc" | "desc")}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Results count */}
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-slate-600">
+            Showing <span className="font-semibold text-slate-800">{filteredProfiles.length}</span> profiles
+          </p>
+        </div>
+
+        {/* Profile Grid */}
+        {filteredProfiles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProfiles.map(profile => (
+              <ProfileCard key={profile.id} profile={profile} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-xl shadow-md">
+            <p className="text-slate-500 text-lg">No profiles match your filters</p>
+            <button
+              onClick={clearFilters}
+              className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
